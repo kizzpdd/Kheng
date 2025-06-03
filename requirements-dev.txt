@@ -1,64 +1,7 @@
-import os
-import json
-import requests
-import tarfile
-from io import BytesIO
+Cách để bỏ cái show more khi chuột phải trên win11
 
-image = "nginx"
-tag = "latest"
-registry = "registry-1.docker.io"
-repo = f"library/{image}"
-output_dir = f"{image}_{tag}_image"
+Mở powershell và copy paste lệnh này sau đó nhấn enter:
 
-os.makedirs(output_dir, exist_ok=True)
+𝐍𝐞𝐰-𝐈𝐭𝐞𝐦 -𝐏𝐚𝐭𝐡 "𝐇𝐊𝐂𝐔:\𝐒𝐨𝐟𝐭𝐰𝐚𝐫𝐞\𝐂𝐥𝐚𝐬𝐬𝐞𝐬\𝐂𝐋𝐒𝐈𝐃\{𝟖𝟔𝐜𝐚𝟏𝐚𝐚𝟎-𝟑𝟒𝐚𝐚-𝟒𝐞𝟖𝐛-𝐚𝟓𝟎𝟗-𝟓𝟎𝐜𝟗𝟎𝟓𝐛𝐚𝐞𝟐𝐚𝟐}\𝐈𝐧𝐩𝐫𝐨𝐜𝐒𝐞𝐫𝐯𝐞𝐫𝟑𝟐" -𝐅𝐨𝐫𝐜𝐞 | 𝐎𝐮𝐭-𝐍𝐮𝐥𝐥; 𝐒𝐞𝐭-𝐈𝐭𝐞𝐦𝐏𝐫𝐨𝐩𝐞𝐫𝐭𝐲 -𝐏𝐚𝐭𝐡 "𝐇𝐊𝐂𝐔:\𝐒𝐨𝐟𝐭𝐰𝐚𝐫𝐞\𝐂𝐥𝐚𝐬𝐬𝐞𝐬\𝐂𝐋𝐒𝐈𝐃\{𝟖𝟔𝐜𝐚𝟏𝐚𝐚𝟎-𝟑𝟒𝐚𝐚-𝟒𝐞𝟖𝐛-𝐚𝟓𝟎𝟗-𝟓𝟎𝐜𝟗𝟎𝟓𝐛𝐚𝐞𝟐𝐚𝟐}\𝐈𝐧𝐩𝐫𝐨𝐜𝐒𝐞𝐫𝐯𝐞𝐫𝟑𝟐" -𝐍𝐚𝐦𝐞 "(𝐝𝐞𝐟𝐚𝐮𝐥𝐭)" -𝐕𝐚𝐥𝐮𝐞 ""
 
-# 1. Lấy Token
-token_url = f"https://auth.docker.io/token?service=registry.docker.io&scope=repository:{repo}:pull"
-token = requests.get(token_url).json()["token"]
-
-# 2. Lấy manifest
-headers = {
-    "Authorization": f"Bearer {token}",
-    "Accept": "application/vnd.docker.distribution.manifest.v2+json"
-}
-manifest_url = f"https://{registry}/v2/{repo}/manifests/{tag}"
-manifest = requests.get(manifest_url, headers=headers).json()
-
-# 3. Tải config.json
-config_digest = manifest["config"]["digest"]
-config_url = f"https://{registry}/v2/{repo}/blobs/{config_digest}"
-config_res = requests.get(config_url, headers={"Authorization": f"Bearer {token}"})
-config_filename = config_digest.replace(":", "_") + ".json"
-with open(os.path.join(output_dir, config_filename), "wb") as f:
-    f.write(config_res.content)
-
-# 4. Tải các layers
-layer_filenames = []
-for layer in manifest["layers"]:
-    digest = layer["digest"]
-    url = f"https://{registry}/v2/{repo}/blobs/{digest}"
-    layer_filename = digest.replace(":", "_") + ".tar.gz"
-    layer_filenames.append(layer_filename)
-
-    print(f"Tải layer {digest} → {layer_filename}")
-    r = requests.get(url, headers={"Authorization": f"Bearer {token}"}, stream=True)
-    with open(os.path.join(output_dir, layer_filename), "wb") as f:
-        for chunk in r.iter_content(8192):
-            f.write(chunk)
-
-# 5. Tạo manifest.json
-manifest_json = [{
-    "Config": config_filename,
-    "RepoTags": [f"{image}:{tag}"],
-    "Layers": layer_filenames
-}]
-with open(os.path.join(output_dir, "manifest.json"), "w") as f:
-    json.dump(manifest_json, f)
-
-# 6. Đóng gói thành file .tar
-tar_filename = f"{image}_{tag}.tar"
-with tarfile.open(tar_filename, "w") as tar:
-    for filename in [config_filename] + layer_filenames + ["manifest.json"]:
-        tar.add(os.path.join(output_dir, filename), arcname=filename)
-
-print(f"Đã tạo file Docker image: {tar_filename}")
+Bước 2: copy paste tiếp 𝐒𝐭𝐨𝐩-𝐏𝐫𝐨𝐜𝐞𝐬𝐬 -𝐍𝐚𝐦𝐞 𝐞𝐱𝐩𝐥𝐨𝐫𝐞𝐫 -𝐅𝐨𝐫𝐜𝐞 rồi enter là đc
